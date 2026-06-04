@@ -33,6 +33,11 @@ public class Author {
         this.id = id;
     }
 
+    public Author(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public Author(Long id, String name, String biography) {
         this.id = id;
         this.name = name;

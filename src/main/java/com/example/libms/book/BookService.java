@@ -3,16 +3,22 @@ package com.example.libms.book;
 
 
 import com.example.libms.author.Author;
+import com.example.libms.author.AuthorMapper;
 import com.example.libms.author.AuthorRepository;
 import com.example.libms.author.exceptions.AuthorNotFoundException;
+import com.example.libms.book.dto.*;
 import com.example.libms.book.enums.BookCategory;
 import com.example.libms.book.exceptions.BookNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,6 +30,8 @@ public class BookService {
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
     private final BookMapper mapper;
+    private final AuthorMapper authorMapper;
+    private final RestClient restClient;
 
     public List<BookDto> getAllBooks(String title, BookCategory category, String authorName) {
         return bookRepository.findAll()
@@ -80,6 +88,50 @@ public class BookService {
         List<Book> savedBooks = bookRepository.saveAll(books);
         log.info("added {} new books", savedBooks.size());
         return savedBooks.stream().map(mapper::toDto).toList();
+    }
+
+    public BookDto createBooksWithAuthorFetch(OpenLibraryRequestDto dto) {
+
+        Map<String, OpenLibraryResponseDto> bookInfo = restClient.get()
+                .uri("/api/books?bibkeys=ISBN:{isbn}&format=json&jscmd=data", dto.getISBN())
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
+                    throw new RuntimeException("Book not found for ISBN: " + dto.getISBN());
+                })
+                .onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
+                    throw new RuntimeException("OpenLibrary API unavailable, try again later");
+                })
+                .body(new ParameterizedTypeReference<Map<String, OpenLibraryResponseDto>>() {
+                });
+
+        assert bookInfo != null;
+
+        String authorKey = bookInfo.get("ISBN:" + dto.getISBN()).getAuthors().getFirst().getUrl().split("/")[4];
+
+        OpenLibraryAuthorResponseDto authorInfo = restClient.get()
+                .uri("/authors/{key}.json", authorKey)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
+                    throw new RuntimeException("Author not found for olid: " + authorKey);
+                })
+                .onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
+                    throw new RuntimeException("OpenLibrary API unavailable, try again later");
+                })
+                .body(OpenLibraryAuthorResponseDto.class);
+
+        assert authorInfo != null;
+
+        Author savedAuthor = authorRepository.save(authorMapper.toEntity(authorInfo));
+
+        Book mappedBook = mapper.toEntity(bookInfo.get("ISBN:" + dto.getISBN()));
+        mappedBook.setAuthor(new Author(savedAuthor.getId()));
+        mappedBook.setISBN(dto.getISBN());
+
+        Book savedBook = bookRepository.save(mappedBook);
+
+        savedBook.getAuthor().setName(savedAuthor.getName());
+
+        return mapper.toDto(savedBook);
     }
 
     public void deleteBook(Long id) {

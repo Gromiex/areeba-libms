@@ -1,4 +1,4 @@
-package com.example.libms.book;
+package com.example.libms.book.dto;
 
 import com.example.libms.book.enums.BookCategory;
 import jakarta.persistence.EnumType;

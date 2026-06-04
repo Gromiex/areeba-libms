@@ -1,5 +1,6 @@
 package com.example.libms.author;
 
+import com.example.libms.book.dto.OpenLibraryAuthorResponseDto;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,6 +17,18 @@ public class AuthorMapper {
         author.setId(authorDto.getId());
         author.setName(authorDto.getName());
         author.setBiography(authorDto.getBiography());
+        return author;
+    }
+
+    public Author toEntity(OpenLibraryAuthorResponseDto dto) {
+        Author author = new Author();
+        author.setId(null);
+        author.setName(dto.getName());
+        if (dto.getBio() == null) {
+            author.setBiography("No Biography Available");
+        } else {
+            author.setBiography(dto.getBio().getValue());
+        }
         return author;
     }
 }

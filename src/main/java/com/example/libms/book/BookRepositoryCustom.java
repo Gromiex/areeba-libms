@@ -1,5 +1,7 @@
 package com.example.libms.book;
 
+import com.example.libms.book.dto.BookDto;
+
 import java.util.List;
 
 public interface BookRepositoryCustom {

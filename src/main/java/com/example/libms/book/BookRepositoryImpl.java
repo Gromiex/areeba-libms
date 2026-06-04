@@ -1,6 +1,7 @@
 package com.example.libms.book;
 
 import com.example.libms.author.QAuthor;
+import com.example.libms.book.dto.BookDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQuery;

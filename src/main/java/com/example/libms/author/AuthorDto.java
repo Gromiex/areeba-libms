@@ -1,7 +1,7 @@
 package com.example.libms.author;
 
 
-import com.example.libms.book.BookDto;
+import com.example.libms.book.dto.BookDto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;

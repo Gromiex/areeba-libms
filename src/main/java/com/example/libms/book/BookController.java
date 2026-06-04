@@ -1,5 +1,7 @@
 package com.example.libms.book;
 
+import com.example.libms.book.dto.BookDto;
+import com.example.libms.book.dto.OpenLibraryRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +38,12 @@ public class BookController {
     @PostMapping("/bulk")
     public ResponseEntity<List<BookDto>> createBooks(@RequestBody List<BookDto> bookDtos) {
         List<BookDto> created = service.createBooks(bookDtos);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PostMapping("openLibrary")
+    public ResponseEntity<BookDto> createBooksWithAuthorFetch(@RequestBody OpenLibraryRequestDto dto) {
+        BookDto created = service.createBooksWithAuthorFetch(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
