@@ -4,11 +4,14 @@ package com.example.libms.borrowing;
 import com.example.libms.book.Book;
 import com.example.libms.book.BookRepository;
 import com.example.libms.book.exceptions.BookNotFoundException;
+import com.example.libms.borrower.Borrower;
 import com.example.libms.borrower.BorrowerRepository;
 import com.example.libms.borrower.exceptions.BorrowerNotFoundException;
 import com.example.libms.borrower.properties.BorrowerTransactionProperties;
 import com.example.libms.borrowing.enums.BorrowingStatus;
 import com.example.libms.borrowing.exceptions.*;
+import com.example.libms.email.EmailRequestDto;
+import com.example.libms.email.EmailServiceClient;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +29,7 @@ public class BorrowingService {
     private final BookRepository bookRepository;
     private final BorrowingMapper mapper;
     private final BorrowerTransactionProperties borrowerTransactionProperties;
+    private final EmailServiceClient emailServiceClient;
 
     public List<BorrowingDto> getAllBorrowings() {
         return borrowingRepository.findAll()
@@ -41,8 +45,8 @@ public class BorrowingService {
             throw new BookingLimitReachedException("booking limits reached for borrower with id " + dto.getBorrowerId());
         }
 
-        if (!borrowerRepository.existsById(dto.getBorrowerId()))
-            throw new BorrowerNotFoundException("no borrower with id " + dto.getBorrowerId());
+        Borrower borrower = borrowerRepository.findById(dto.getBorrowerId())
+                .orElseThrow(() -> new BorrowerNotFoundException("no borrower with id " + dto.getBorrowerId()));
 
         Book book = bookRepository.findById(dto.getBookId())
                 .orElseThrow(() -> new BookNotFoundException("no book with id " + dto.getBookId()));
@@ -68,6 +72,7 @@ public class BorrowingService {
         }
 
         log.info("borrower with id {} borrowed book {} with id {}", borrowing.getId(), book.getTitle(), book.getId());
+        emailServiceClient.sendEmail(new EmailRequestDto(borrower.getEmail(), "Book " + book.getTitle() + " borrowed successfully"));
 
         return mapper.toDto(borrowing);
     }
