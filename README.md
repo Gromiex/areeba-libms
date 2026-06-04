@@ -7,7 +7,7 @@ This is a REST API that manages the bookings in a library store.
 ### Prerequisites
 
 - Java 25
-- Maven
+- Gradle
 - PostgreSQL
 
 ### Database Setup
@@ -32,12 +32,12 @@ spring.datasource.password=your_password
 
 2. Install dependencies and build:
 ```bash
-   mvn clean install
+   ./gradlew build
 ```
 
 3. Run the application:
 ```bash
-   mvn spring-boot:run
+   ./gradlew bootRun
 ```
 
 The API will be available at `http://localhost:8080`.
@@ -83,4 +83,3 @@ The API will be available at `http://localhost:8080`.
 | POST | `/api/borrowing` | Create a new borrowing record |
 | GET | `/api/borrowing/return/{id}` | Mark a borrowing as returned |
 | DELETE | `/api/borrowing/{id}` | Delete a borrowing record by ID |
-
