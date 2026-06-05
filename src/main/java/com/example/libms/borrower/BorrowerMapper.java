@@ -10,6 +10,7 @@ public class BorrowerMapper {
                 borrower.getId(),
                 borrower.getName(),
                 borrower.getEmail(),
+                borrower.getPassword(),
                 borrower.getPhone()
         );
     }
@@ -19,6 +20,7 @@ public class BorrowerMapper {
         borrower.setId(dto.getId());
         borrower.setName(dto.getName());
         borrower.setEmail(dto.getEmail());
+        borrower.setPassword(dto.getPassword());
         borrower.setPhone(dto.getPhone());
         return borrower;
     }

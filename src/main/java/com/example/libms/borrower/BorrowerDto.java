@@ -19,14 +19,27 @@ public class BorrowerDto {
     @NotBlank(message = "email is mandatory")
     private String email;
 
+    @NotBlank(message = "password is mandatory")
+    private String password;
+
     @Pattern(regexp = "^((?:\\+961|00961)[\\s-]?([1-9]|70|71|76|78|79|81)|(0[1-9]|70|71|76|78|79|81))\\d{6}$", message = "number must be in Lebanese format")
     @NotBlank(message = "phone is mandatory")
     private String phone;
+
+    public BorrowerDto() {}
 
     public BorrowerDto(Long id, String name, String email, String phone) {
         this.id = id;
         this.name = name;
         this.email = email;
+        this.phone = phone;
+    }
+
+    public BorrowerDto(Long id, String name, String email, String password, String phone) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
         this.phone = phone;
     }
 

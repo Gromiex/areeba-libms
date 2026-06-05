@@ -7,14 +7,18 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.List;
 
 @Setter
 @Getter
 @Entity
 @Table(name = "borrowers")
-public class Borrower {
+public class Borrower implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,6 +32,9 @@ public class Borrower {
     @Column(unique=true)
     private String email;
 
+    @NotBlank(message = "password is mandatory")
+    private String password;
+
     @Pattern(regexp = "^((?:\\+961|00961)[\\s-]?([1-9]|70|71|76|78|79|81)|(0[1-9]|70|71|76|78|79|81))\\d{6}$", message = "number must be in Lebanese format")
     @NotBlank(message = "phone is mandatory")
     @Column(unique=true)
@@ -35,6 +42,21 @@ public class Borrower {
 
     @OneToMany(mappedBy = "borrower", cascade = CascadeType.ALL)
     private List<Borrowing> borrowings;
+
+    @Override
+    public String getUsername() {
+        return email;  // using email as the login identifier
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
 
     public Borrower() {}
 
@@ -46,6 +68,14 @@ public class Borrower {
         this.id = id;
         this.name = name;
         this.email = email;
+        this.phone = phone;
+    }
+
+    public Borrower(Long id, String name, String email, String password, String phone) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
         this.phone = phone;
     }
 

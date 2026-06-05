@@ -2,8 +2,13 @@ package com.example.libms.borrower;
 
 import com.example.libms.borrower.exceptions.BorrowerNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,10 +16,11 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class BorrowerService {
+public class BorrowerService implements UserDetailsService {
     private static final Logger log = LoggerFactory.getLogger(BorrowerService.class);
     private final BorrowerRepository borrowerRepository;
     private final BorrowerMapper mapper;
+    private final PasswordEncoder passwordEncoder;
 
     public List<BorrowerDto> getAllBorrowers() {
         return borrowerRepository.findAll()
@@ -31,6 +37,7 @@ public class BorrowerService {
     }
 
     public BorrowerDto createBorrower(BorrowerDto dto) {
+        dto.setPassword(passwordEncoder.encode(dto.getPassword()));
         Borrower saved = borrowerRepository.save(mapper.toEntity(dto));
         log.info("added a new borrower {}", saved.getName());
         return mapper.toDto(saved);
@@ -53,5 +60,11 @@ public class BorrowerService {
         existing.setPhone(dto.getPhone());
 
         return mapper.toDto(borrowerRepository.save(existing));
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return borrowerRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Borrower not found: " + email));
     }
 }

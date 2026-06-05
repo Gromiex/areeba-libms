@@ -32,6 +32,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
 	// PostgreSQL
 	runtimeOnly 'org.postgresql:postgresql'
@@ -42,6 +44,9 @@ dependencies {
 
 	// QueryDSL (jakarta classifier required for Jakarta EE / Spring Boot 3+)
 	implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
+
+	// JWT
+	implementation 'com.nimbusds:nimbus-jose-jwt:9.40'
 
 	// Lombok
 	compileOnly 'org.projectlombok:lombok'
