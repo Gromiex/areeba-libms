@@ -28,6 +28,8 @@ public class QBorrower extends EntityPathBase<Borrower> {
 
     public final StringPath name = createString("name");
 
+    public final StringPath password = createString("password");
+
     public final StringPath phone = createString("phone");
 
     public QBorrower(String variable) {
