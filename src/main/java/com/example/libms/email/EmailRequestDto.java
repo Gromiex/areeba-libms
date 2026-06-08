@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EmailRequestDto {
-    private String email;
+    private String toEmail;
     private String message;
+    private Long borrowingId;
+    private Long bookId;
+    private Long borrowerId;
 }

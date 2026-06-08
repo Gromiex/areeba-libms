@@ -12,11 +12,11 @@ import com.example.libms.borrowing.enums.BorrowingStatus;
 import com.example.libms.borrowing.exceptions.*;
 import com.example.libms.email.EmailRequestDto;
 import com.example.libms.email.EmailServiceClient;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,6 +41,7 @@ public class BorrowingServiceImpl implements IBorrowingService {
     }
 
     @Override
+    @Transactional
     public BorrowingDto createBorrowing(BorrowingDto dto) {
         int numberOfBorrowings = borrowingRepository.countBorrowerBorrowings(dto.getBorrowerId());
 
@@ -70,12 +71,11 @@ public class BorrowingServiceImpl implements IBorrowingService {
             bookRepository.save(book);
         } catch (Exception e) {
             log.info("failed to update the book status, cancelling the borrowing");
-            borrowingRepository.deleteById(borrowing.getId());
             throw new FailedBookStatusUpdateException("failed to update book availability to false");
         }
 
         log.info("borrower with id {} borrowed book {} with id {}", borrowing.getId(), book.getTitle(), book.getId());
-        emailServiceClient.sendEmail(new EmailRequestDto(borrower.getEmail(), "Book " + book.getTitle() + " borrowed successfully"));
+        emailServiceClient.sendEmail(new EmailRequestDto(borrower.getEmail(), "Book " + book.getTitle() + " borrowed successfully", borrowing.getId(), book.getId(), borrower.getId()));
 
         return mapper.toDto(borrowing);
     }
@@ -102,10 +102,6 @@ public class BorrowingServiceImpl implements IBorrowingService {
         try {
             bookRepository.save(book);
         } catch (Exception e) {
-            log.info("failed to update the book status, cancelling the borrowing");
-            savedBorrowing.setStatus(BorrowingStatus.BORROWED);
-            savedBorrowing.setReturnedDate(null);
-            borrowingRepository.save(savedBorrowing);
             throw new FailedBookStatusUpdateException("failed to update book availability to true");
         }
 
