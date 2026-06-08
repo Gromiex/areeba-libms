@@ -15,7 +15,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class BorrowerController {
 
-    private final BorrowerService service;
+    private final IBorrowerService service;
 
     @GetMapping
     public ResponseEntity<List<BorrowerDto>> getAllBorrowers() {

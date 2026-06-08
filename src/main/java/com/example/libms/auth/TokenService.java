@@ -23,11 +23,13 @@ public class TokenService {
 
     private final RSAPrivateKey privateKey;
     private final RSAPublicKey publicKey;
+    private JwtEncoder jwtEncoder;
 
     // Access token: short-lived (15 min)
     private static final Duration ACCESS_TOKEN_EXPIRY  = Duration.ofMinutes(15);
     // Refresh token: long-lived (7 days)
     private static final Duration REFRESH_TOKEN_EXPIRY = Duration.ofDays(7);
+
 
     public String generateAccessToken(UserDetails user) {
         Instant now = Instant.now();
@@ -73,7 +75,10 @@ public class TokenService {
     }
 
     private JwtEncoder encoder() {
-        JWK jwk = new RSAKey.Builder(publicKey).privateKey(privateKey).build();
-        return new NimbusJwtEncoder(new ImmutableJWKSet<>(new JWKSet(jwk)));
+        if (jwtEncoder == null) {
+            JWK jwk = new RSAKey.Builder(publicKey).privateKey(privateKey).build();
+            this.jwtEncoder = new NimbusJwtEncoder(new ImmutableJWKSet<>(new JWKSet(jwk)));
+        }
+        return jwtEncoder;
     }
 }

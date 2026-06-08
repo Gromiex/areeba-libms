@@ -15,7 +15,7 @@ import java.util.Map;
 @RequestMapping("/api/authors")
 @RequiredArgsConstructor // handles the injection of all final fields
 public class AuthorController {
-    private final AuthorService service;
+    private final IAuthorService service;
 
     @GetMapping
     public ResponseEntity<List<AuthorDto>> getAllAuthors() {

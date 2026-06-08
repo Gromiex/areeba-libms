@@ -14,7 +14,7 @@ import java.util.Map;
 @RequestMapping("/api/borrowing")
 @RequiredArgsConstructor
 public class BorrowingController {
-    private final BorrowingService borrowingService;
+    private final IBorrowingService borrowingService;
 
     @GetMapping
     public ResponseEntity<List<BorrowingDto>> getAllBorrowings() {
@@ -28,7 +28,7 @@ public class BorrowingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(borrowingDto);
     }
 
-    @GetMapping("/return/{id}")
+    @PatchMapping("/{id}/return")
     public ResponseEntity<BorrowingDto> returnBorrowing(@PathVariable Long id) {
         BorrowingDto dto = borrowingService.returnBorrowing(id);
         return ResponseEntity.status(HttpStatus.OK).body(dto);

@@ -14,7 +14,6 @@ public class BookDto {
     private Long id;
 
     @NotNull(message = "category is mandatory")
-    @Enumerated(EnumType.STRING)
     private BookCategory category;
 
     @NotBlank(message = "title is mandatory")

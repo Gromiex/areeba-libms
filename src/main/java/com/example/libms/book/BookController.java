@@ -2,6 +2,7 @@ package com.example.libms.book;
 
 import com.example.libms.book.dto.BookDto;
 import com.example.libms.book.dto.OpenLibraryRequestDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +17,10 @@ import java.util.Map;
 @RequestMapping("/api/books")
 @RequiredArgsConstructor
 public class BookController {
-    private final BookService service;
+    private final IBookService service;
 
     @GetMapping
-    public ResponseEntity<List<BookDto>> getAllBooks(@ModelAttribute BookSearchRequest request) {
+    public ResponseEntity<List<BookDto>> getAllBooks(@Valid @ModelAttribute BookSearchRequest request) {
         return ResponseEntity.ok(service.searchBooks(request));
     }
 
@@ -30,19 +31,19 @@ public class BookController {
     }
 
     @PostMapping
-    public ResponseEntity<BookDto> createBook(@RequestBody BookDto bookDto) {
+    public ResponseEntity<BookDto> createBook(@Valid @RequestBody BookDto bookDto) {
         BookDto created = service.createBook(bookDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PostMapping("/bulk")
-    public ResponseEntity<List<BookDto>> createBooks(@RequestBody List<BookDto> bookDtos) {
+    public ResponseEntity<List<BookDto>> createBooks(@Valid @RequestBody List<BookDto> bookDtos) {
         List<BookDto> created = service.createBooks(bookDtos);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PostMapping("openLibrary")
-    public ResponseEntity<BookDto> createBooksWithAuthorFetch(@RequestBody OpenLibraryRequestDto dto) {
+    public ResponseEntity<BookDto> createBooksWithAuthorFetch(@Valid @RequestBody OpenLibraryRequestDto dto) {
         BookDto created = service.createBooksWithAuthorFetch(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
@@ -60,7 +61,7 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BookDto> updateBook(@PathVariable Long id, @RequestBody BookDto dto) {
+    public ResponseEntity<BookDto> updateBook(@PathVariable Long id, @Valid @RequestBody BookDto dto) {
         BookDto updatedBookDto = service.updateBook(id, dto);
         return ResponseEntity.status(HttpStatus.OK).body(updatedBookDto);
     }

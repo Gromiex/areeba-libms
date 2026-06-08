@@ -7,7 +7,6 @@ import com.example.libms.author.AuthorMapper;
 import com.example.libms.author.AuthorRepository;
 import com.example.libms.author.exceptions.AuthorNotFoundException;
 import com.example.libms.book.dto.*;
-import com.example.libms.book.enums.BookCategory;
 import com.example.libms.book.exceptions.BookNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -25,25 +24,27 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class BookService {
-    private static final Logger log = LoggerFactory.getLogger(BookService.class);
+public class BookServiceImpl implements IBookService {
+    private static final Logger log = LoggerFactory.getLogger(BookServiceImpl.class);
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
     private final BookMapper mapper;
     private final AuthorMapper authorMapper;
     private final RestClient restClient;
 
-    public List<BookDto> getAllBooks(String title, BookCategory category, String authorName) {
+    /*public List<BookDto> getAllBooks(String title, BookCategory category, String authorName) {
         return bookRepository.findAll()
                 .stream()
                 .map(mapper::toDto)
                 .toList();
-    }
+    }*/
 
+    @Override
     public List<BookDto> searchBooks(BookSearchRequest request) {
         return bookRepository.searchBooks(request);
     }
 
+    @Override
     public BookDto getBookById(Long id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new BookNotFoundException("no book with id " + id));
@@ -54,6 +55,7 @@ public class BookService {
         return bookDto;
     }
 
+    @Override
     public BookDto createBook(BookDto bookDto) {
         if (!authorRepository.existsById(bookDto.getAuthorId()))
             throw new AuthorNotFoundException("no author with id " + bookDto.getAuthorId());
@@ -63,6 +65,7 @@ public class BookService {
         return mapper.toDto(savedBook);
     }
 
+    @Override
     public List<BookDto> createBooks(List<BookDto> bookDtos) {
 
         Set<Long> authorIds = bookDtos.stream()
@@ -90,6 +93,7 @@ public class BookService {
         return savedBooks.stream().map(mapper::toDto).toList();
     }
 
+    @Override
     public BookDto createBooksWithAuthorFetch(OpenLibraryRequestDto dto) {
 
         Map<String, OpenLibraryResponseDto> bookInfo = restClient.get()
@@ -104,7 +108,9 @@ public class BookService {
                 .body(new ParameterizedTypeReference<Map<String, OpenLibraryResponseDto>>() {
                 });
 
-        assert bookInfo != null;
+        if (bookInfo == null || bookInfo.get("ISBN:" + dto.getISBN()) == null) {
+            throw new RuntimeException("OpenLibrary returned no data for ISBN: " + dto.getISBN());
+        }
 
         String authorKey = bookInfo.get("ISBN:" + dto.getISBN()).getAuthors().getFirst().getUrl().split("/")[4];
 
@@ -134,6 +140,7 @@ public class BookService {
         return mapper.toDto(savedBook);
     }
 
+    @Override
     public void deleteBook(Long id) {
         if (!bookRepository.existsById(id)) {
             throw new BookNotFoundException("no book with id " + id);
@@ -143,6 +150,7 @@ public class BookService {
         log.info("deleted book with id {}", id);
     }
 
+    @Override
     public BookDto updateBook(Long id, BookDto dto) {
         Book existingBook = bookRepository.findById(id)
                 .orElseThrow(() -> new BookNotFoundException("no book with id " + id));
@@ -154,7 +162,7 @@ public class BookService {
 
         if (!Objects.equals(dto.getAuthorId(), existingBook.getAuthor().getId())) {
             Author newAuthor = authorRepository.findById(dto.getAuthorId())
-                    .orElseThrow(() -> new AuthorNotFoundException("no author with id " + id));
+                    .orElseThrow(() -> new AuthorNotFoundException("no author with id " + dto.getAuthorId()));
 
             existingBook.setAuthor(newAuthor);
         }

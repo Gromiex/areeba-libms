@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface BookRepositoryCustom {
     List<BookDto> searchBooks(BookSearchRequest request);
+    int countAuthorBooks(Long authorId);
 }

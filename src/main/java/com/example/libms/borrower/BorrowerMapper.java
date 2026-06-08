@@ -10,7 +10,7 @@ public class BorrowerMapper {
                 borrower.getId(),
                 borrower.getName(),
                 borrower.getEmail(),
-                borrower.getPassword(),
+                null,
                 borrower.getPhone()
         );
     }
