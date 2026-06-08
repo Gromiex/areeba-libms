@@ -3,14 +3,14 @@ package com.example.libms.auth;
 import com.example.libms.auth.dto.LoginRequest;
 import com.example.libms.auth.dto.RefreshRequest;
 import com.example.libms.auth.dto.TokenResponse;
-import com.example.libms.borrower.BorrowerService;
+import com.example.libms.borrower.IBorrowerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,10 +23,10 @@ public class AuthController {
 
     private final AuthenticationManager authManager;
     private final TokenService tokenService;
-    private final BorrowerService borrowerService;
+    private final IBorrowerService borrowerService;
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
         // Throws AuthenticationException if invalid
         Authentication auth = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -41,7 +41,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<TokenResponse> refresh(@RequestBody RefreshRequest request) {
+    public ResponseEntity<TokenResponse> refresh(@Valid @RequestBody RefreshRequest request) {
         // Validate refresh token and extract email
         String email = tokenService.extractSubject(request.getRefreshToken());
 

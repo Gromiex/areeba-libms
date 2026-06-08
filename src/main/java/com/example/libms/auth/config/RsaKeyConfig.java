@@ -20,9 +20,7 @@ import java.util.Base64;
 public class RsaKeyConfig {
 
     private final RsaKeyProperties rsaKeyProperties;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
+    private final ResourceLoader resourceLoader;
 
     @Bean
     public RSAPrivateKey rsaPrivateKey() throws Exception {

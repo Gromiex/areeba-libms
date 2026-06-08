@@ -1,7 +1,7 @@
 package com.example.libms.auth.config;
 
 import com.example.libms.auth.AuthEntryPoint;
-import com.example.libms.borrower.BorrowerService;
+import com.example.libms.borrower.IBorrowerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -28,7 +27,7 @@ import java.security.interfaces.RSAPublicKey;
 public class SecurityConfig {
 
     private final RSAPublicKey publicKey;
-    private final BorrowerService borrowerService;
+    private final IBorrowerService borrowerService;
     private final PasswordEncoder passwordEncoder;
     private final AuthEntryPoint authEntryPoint;
 

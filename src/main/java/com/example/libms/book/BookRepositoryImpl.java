@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 public class BookRepositoryImpl implements BookRepositoryCustom {
@@ -52,5 +53,18 @@ public class BookRepositoryImpl implements BookRepositoryCustom {
         }
 
         return query.where(where).fetch();
+    }
+
+    @Override
+    public int countAuthorBooks(Long authorId) {
+        QBook book = QBook.book;
+
+        Long count = new JPAQuery<Long>(em)
+                .select(book.count())
+                .from(book)
+                .where(book.author.id.eq(authorId))
+                .fetchOne();
+
+        return Math.toIntExact(Objects.requireNonNullElse(count, 0L));
     }
 }

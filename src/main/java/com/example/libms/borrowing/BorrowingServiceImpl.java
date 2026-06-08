@@ -12,6 +12,7 @@ import com.example.libms.borrowing.enums.BorrowingStatus;
 import com.example.libms.borrowing.exceptions.*;
 import com.example.libms.email.EmailRequestDto;
 import com.example.libms.email.EmailServiceClient;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +23,8 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class BorrowingService {
-    private static final Logger log = LoggerFactory.getLogger(Borrowing.class);
+public class BorrowingServiceImpl implements IBorrowingService {
+    private static final Logger log = LoggerFactory.getLogger(BorrowingServiceImpl.class);
     private final BorrowingRepository borrowingRepository;
     private final BorrowerRepository borrowerRepository;
     private final BookRepository bookRepository;
@@ -31,6 +32,7 @@ public class BorrowingService {
     private final BorrowerTransactionProperties borrowerTransactionProperties;
     private final EmailServiceClient emailServiceClient;
 
+    @Override
     public List<BorrowingDto> getAllBorrowings() {
         return borrowingRepository.findAll()
                 .stream()
@@ -38,6 +40,7 @@ public class BorrowingService {
                 .toList();
     }
 
+    @Override
     public BorrowingDto createBorrowing(BorrowingDto dto) {
         int numberOfBorrowings = borrowingRepository.countBorrowerBorrowings(dto.getBorrowerId());
 
@@ -77,6 +80,8 @@ public class BorrowingService {
         return mapper.toDto(borrowing);
     }
 
+    @Override
+    @Transactional
     public BorrowingDto returnBorrowing(Long id) {
 
         Borrowing borrowing = borrowingRepository.findById(id)
@@ -98,7 +103,7 @@ public class BorrowingService {
             bookRepository.save(book);
         } catch (Exception e) {
             log.info("failed to update the book status, cancelling the borrowing");
-            savedBorrowing.setStatus(BorrowingStatus.RETURNED);
+            savedBorrowing.setStatus(BorrowingStatus.BORROWED);
             savedBorrowing.setReturnedDate(null);
             borrowingRepository.save(savedBorrowing);
             throw new FailedBookStatusUpdateException("failed to update book availability to true");
@@ -109,6 +114,7 @@ public class BorrowingService {
         return mapper.toDto(savedBorrowing);
     }
 
+    @Override
     public void deleteBorrowing(Long id) {
         Borrowing borrowing = borrowingRepository.findById(id)
                         .orElseThrow(() -> new BorrowingNotFoundException("no borrowing with id " + id));
@@ -121,6 +127,6 @@ public class BorrowingService {
 
         borrowingRepository.deleteById(id);
 
-        log.info("borrower with id {} has been deleted", borrowing.getId());
+        log.info("borrowing with id {} has been deleted", borrowing.getId());
     }
 }

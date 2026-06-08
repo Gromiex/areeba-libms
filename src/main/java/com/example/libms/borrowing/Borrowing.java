@@ -57,6 +57,4 @@ public class Borrowing {
         this.status = status;
     }
 
-    public void save() {
-    }
 }
