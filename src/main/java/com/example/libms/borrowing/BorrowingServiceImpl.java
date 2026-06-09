@@ -60,7 +60,7 @@ public class BorrowingServiceImpl implements IBorrowingService {
 
         dto.setStatus(BorrowingStatus.BORROWED);
 
-        Borrowing borrowing = borrowingRepository.save(mapper.toEntity(dto));
+        Borrowing borrowing = borrowingRepository.save(mapper.toEntity(dto, book, borrower));
 
         if (borrowing.getId() == null)
             throw new RuntimeException("failed to create borrowing");
@@ -75,13 +75,28 @@ public class BorrowingServiceImpl implements IBorrowingService {
         }
 
         log.info("borrower with id {} borrowed book {} with id {}", borrowing.getId(), book.getTitle(), book.getId());
-        emailServiceClient.sendEmail(new EmailRequestDto(borrower.getEmail(), "Book " + book.getTitle() + " borrowed successfully", borrowing.getId(), book.getId(), borrower.getId()));
 
         return mapper.toDto(borrowing);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
+    public void sendBorrowingEmail(Long id) {
+        Borrowing borrowing = borrowingRepository.findById(id)
+                .orElseThrow(() -> new BorrowingNotFoundException("no borrowing with id " + id));
+
+        emailServiceClient.sendEmail(
+                new EmailRequestDto(
+                        borrowing.getBorrower().getEmail(),
+                        "Book " + borrowing.getBook().getTitle() + " borrowed successfully",
+                        borrowing.getId(),
+                        borrowing.getBook().getId(),
+                        borrowing.getBorrower().getId()
+                )
+        );
+    }
+
+    @Override
     public BorrowingDto returnBorrowing(Long id) {
 
         Borrowing borrowing = borrowingRepository.findById(id)

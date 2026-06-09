@@ -7,6 +7,8 @@ public interface IBorrowingService {
 
     BorrowingDto createBorrowing(BorrowingDto dto);
 
+    void sendBorrowingEmail(Long id);
+
     BorrowingDto returnBorrowing(Long id);
 
     void deleteBorrowing(Long id);

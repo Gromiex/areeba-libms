@@ -25,6 +25,8 @@ public class BorrowingController {
     public ResponseEntity<BorrowingDto> createBorrowing(@RequestBody BorrowingDto dto) {
         BorrowingDto borrowingDto = borrowingService.createBorrowing(dto);
 
+        borrowingService.sendBorrowingEmail(borrowingDto.getId());
+
         return ResponseEntity.status(HttpStatus.CREATED).body(borrowingDto);
     }
 

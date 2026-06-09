@@ -30,4 +30,17 @@ public class BorrowingMapper {
 
         return borrowing;
     }
+
+    public Borrowing toEntity(BorrowingDto dto, Book book, Borrower borrower) {
+        Borrowing borrowing = new Borrowing();
+
+        borrowing.setId(dto.getId());
+        borrowing.setBook(book);
+        borrowing.setBorrower(borrower);
+        borrowing.setBorrowedDate(dto.getBorrowedDate());
+        borrowing.setReturnedDate(dto.getReturnedDate());
+        borrowing.setStatus(dto.getStatus());
+
+        return borrowing;
+    }
 }
